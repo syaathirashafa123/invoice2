@@ -21,6 +21,14 @@ export interface Client {
   phone?: string;
 }
 
+export interface PrintTemplateSettings {
+  primaryColor: string;
+  layout: 'modern' | 'classic' | 'minimal';
+  showLogo: boolean;
+  headerFont: string;
+  footerText: string;
+}
+
 export interface CompanySettings {
   name: string;
   address: string;
@@ -28,6 +36,7 @@ export interface CompanySettings {
   website: string;
   taxRate: number;
   currency: string;
+  template: PrintTemplateSettings;
 }
 
 export interface Invoice {
