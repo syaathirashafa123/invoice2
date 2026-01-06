@@ -30,19 +30,29 @@ const App: React.FC = () => {
     email: 'hello@novasolutions.com',
     website: 'www.novasolutions.com',
     taxRate: 8.25,
-    currency: 'USD'
+    currency: 'USD',
+    template: {
+      primaryColor: '#4f46e5',
+      layout: 'modern',
+      showLogo: true,
+      headerFont: 'Inter',
+      footerText: ''
+    }
   });
 
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [reviewingInvoice, setReviewingInvoice] = useState<Invoice | null>(null);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
 
-  // Initialize some data if empty
+  // Initialize data
   useEffect(() => {
-    const saved = localStorage.getItem('nova_invoices');
-    if (saved) {
-      setInvoices(JSON.parse(saved));
-    } else {
+    const savedInvoices = localStorage.getItem('nova_invoices');
+    if (savedInvoices) setInvoices(JSON.parse(savedInvoices));
+    
+    const savedSettings = localStorage.getItem('nova_settings');
+    if (savedSettings) setSettings(JSON.parse(savedSettings));
+
+    if (!savedInvoices) {
       const mockInvoices: Invoice[] = [
         {
           id: 'inv-1',
@@ -54,17 +64,6 @@ const App: React.FC = () => {
           status: InvoiceStatus.PAID,
           taxRate: 8.25,
           total: 2706.25
-        },
-        {
-          id: 'inv-2',
-          invoiceNumber: 'INV-2024-002',
-          clientId: '2',
-          issueDate: new Date().toISOString().split('T')[0],
-          dueDate: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
-          items: [{ id: 'item-2', description: 'Consulting Services', quantity: 10, unitPrice: 150 }],
-          status: InvoiceStatus.SENT,
-          taxRate: 8.25,
-          total: 1623.75
         }
       ];
       setInvoices(mockInvoices);
@@ -74,6 +73,10 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('nova_invoices', JSON.stringify(invoices));
   }, [invoices]);
+
+  useEffect(() => {
+    localStorage.setItem('nova_settings', JSON.stringify(settings));
+  }, [settings]);
 
   const handleSaveInvoice = (invoice: Invoice) => {
     if (editingInvoice) {
@@ -111,7 +114,6 @@ const App: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      {/* Sidebar */}
       <aside className="w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col no-print">
         <div className="p-6">
           <div className="flex items-center gap-2 mb-8">
@@ -141,21 +143,16 @@ const App: React.FC = () => {
             })}
           </nav>
         </div>
-
         <div className="mt-auto p-6 border-t border-slate-800">
           <button className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-400 hover:text-white transition-colors w-full">
-            <LogOut size={20} />
-            Logout
+            <LogOut size={20} /> Logout
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center no-print">
-          <h1 className="text-xl font-semibold text-slate-800 capitalize">
-            {activeTab}
-          </h1>
+        <header className="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center no-print sticky top-0 z-20">
+          <h1 className="text-xl font-semibold text-slate-800 capitalize">{activeTab}</h1>
           <div className="flex items-center gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -170,21 +167,15 @@ const App: React.FC = () => {
                 setEditingInvoice(null);
                 setShowInvoiceForm(true);
               }}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm shadow-indigo-200"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm"
             >
-              <Plus size={18} />
-              New Invoice
+              <Plus size={18} /> New Invoice
             </button>
           </div>
         </header>
 
         <div className="p-8">
-          {activeTab === 'dashboard' && (
-            <Dashboard 
-              invoices={invoices} 
-              onViewAll={() => setActiveTab('invoices')}
-            />
-          )}
+          {activeTab === 'dashboard' && <Dashboard invoices={invoices} onViewAll={() => setActiveTab('invoices')} />}
           {activeTab === 'invoices' && (
             <InvoiceList 
               invoices={invoices} 
@@ -194,22 +185,11 @@ const App: React.FC = () => {
               onSend={handleSendInvoice}
             />
           )}
-          {activeTab === 'clients' && (
-            <ClientList 
-              clients={clients} 
-              setClients={setClients}
-            />
-          )}
-          {activeTab === 'settings' && (
-            <SettingsView 
-              settings={settings} 
-              setSettings={setSettings} 
-            />
-          )}
+          {activeTab === 'clients' && <ClientList clients={clients} setClients={setClients} />}
+          {activeTab === 'settings' && <SettingsView settings={settings} setSettings={setSettings} />}
         </div>
       </main>
 
-      {/* Invoice Form Modal */}
       {showInvoiceForm && (
         <InvoiceForm 
           onClose={() => setShowInvoiceForm(false)} 
@@ -220,7 +200,6 @@ const App: React.FC = () => {
         />
       )}
 
-      {/* Review & Send Modal */}
       {reviewingInvoice && currentReviewingClient && (
         <ReviewInvoiceModal 
           invoice={reviewingInvoice}
