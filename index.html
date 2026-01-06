@@ -12,16 +12,47 @@
       font-family: 'Inter', sans-serif;
       background-color: #f8fafc;
     }
+    
     @media print {
+      body {
+        background-color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
       .no-print {
         display: none !important;
       }
-      .print-only {
-        display: block !important;
+      #root > div > aside {
+        display: none !important;
       }
-      body {
-        background-color: white !important;
+      #root > div > main {
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
       }
+      header {
+        display: none !important;
+      }
+      .p-8 {
+        padding: 0 !important;
+      }
+      /* Ensure the invoice takes up the whole page */
+      [style*="width: 210mm"] {
+        width: 100% !important;
+        min-height: auto !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+      }
+    }
+
+    /* Custom Scrollbar for side-by-side template editor */
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 <script type="importmap">
@@ -36,10 +67,8 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body>
   <div id="root"></div>
-<script type="module" src="/index.tsx"></script>
 </body>
 </html>
